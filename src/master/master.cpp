@@ -93,6 +93,7 @@
 #include "master/flags.hpp"
 #include "master/master.hpp"
 #include "master/registry_operations.hpp"
+#include "master/resources/network_bandwidth.hpp"
 #include "master/weights.hpp"
 
 #include "module/manager.hpp"
@@ -4512,7 +4513,20 @@ void Master::accept(
     accept.clear_operations();
 
     foreach (Offer::Operation& operation, operations) {
-      Option<Error> error = validateAndUpgradeResources(&operation);
+      Option<Error> error;
+      if(flags.network_bandwidth_enforcement) {
+        error = resources::enforceNetworkBandwidthAllocation(
+              slave->totalResources, operation);
+        if(error.isSome()) {
+          LOG(WARNING) << "[NETWORK BANDWIDTH]:" <<
+                          error.get().message;
+        }
+      }
+
+      if(error.isNone()) {
+         error = validateAndUpgradeResources(&operation);
+      }
+
       if (error.isSome()) {
         switch (operation.type()) {
           case Offer::Operation::RESERVE:
@@ -4698,12 +4712,11 @@ void Master::accept(
               task.mutable_health_check()->set_type(HealthCheck::HTTP);
             }
           }
-
           if (HookManager::hooksAvailable()) {
             *task.mutable_resources() =
               HookManager::masterLaunchTaskResourceDecorator(task,
                 slave->totalResources);
-          }
+            }
         }
 
         break;
@@ -4721,7 +4734,6 @@ void Master::accept(
           if (!task.has_executor()) {
             task.mutable_executor()->CopyFrom(executor);
           }
-
           if (HookManager::hooksAvailable()) {
             *task.mutable_resources() =
               HookManager::masterLaunchTaskResourceDecorator(task,

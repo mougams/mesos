@@ -54,32 +54,38 @@ Quota Limit
       <th ng-show="show_offered" data-key="offered.cpus" class="begin-group-column">CPU</th>
       <th ng-show="show_offered" data-key="offered.gpus">GPU</th>
       <th ng-show="show_offered" data-key="offered.mem">Mem</th>
-      <th ng-show="show_offered" data-key="offered.disk" class="end-group-column">Disk</th>
+      <th ng-show="show_offered" data-key="offered.disk">Disk</th>
+      <th ng-show="show_offered" data-key="offered.network_bandwidth" class="end-group-column">NetworkBandwidth</th>
 
       <th ng-show="show_allocated" data-key="allocated.cpus" class="begin-group-column">CPU</th>
       <th ng-show="show_allocated" data-key="allocated.gpus">GPU</th>
       <th ng-show="show_allocated" data-key="allocated.mem">Mem</th>
-      <th ng-show="show_allocated" data-key="allocated.disk" class="end-group-column">Disk</th>
+      <th ng-show="show_allocated" data-key="allocated.disk">Disk</th>
+      <th ng-show="show_allocated" data-key="allocated.network_bandwidth" class="end-group-column">NetworkBandwidth</th>
 
       <th ng-show="show_reserved" data-key="reserved.cpus" class="begin-group-column">CPU</th>
       <th ng-show="show_reserved" data-key="reserved.gpus">GPU</th>
       <th ng-show="show_reserved" data-key="reserved.mem">Mem</th>
-      <th ng-show="show_reserved" data-key="reserved.disk" class="end-group-column">Disk</th>
+      <th ng-show="show_reserved" data-key="reserved.disk">Disk</th>
+      <th ng-show="show_reserved" data-key="reserved.network_bandwidth" class="end-group-column">NetworkBandwidth</th>
 
       <th ng-show="show_quota_consumption" data-key="quota.consumed.cpus" class="begin-group-column">CPU</th>
       <th ng-show="show_quota_consumption" data-key="quota.consumed.gpus">GPU</th>
       <th ng-show="show_quota_consumption" data-key="quota.consumed.mem">Mem</th>
-      <th ng-show="show_quota_consumption" data-key="quota.consumed.disk" class="end-group-column">Disk</th>
+      <th ng-show="show_quota_consumption" data-key="quota.consumed.disk">Disk</th>
+      <th ng-show="show_quota_consumption" data-key="quota.consumed.network_bandwidth" class="end-group-column">NetworkBandwidth</th>
 
       <th ng-show="show_quota_guarantee" data-key="quota.guarantee.cpus" class="begin-group-column">CPU</th>
       <th ng-show="show_quota_guarantee" data-key="quota.guarantee.gpus">GPU</th>
       <th ng-show="show_quota_guarantee" data-key="quota.guarantee.mem">Mem</th>
-      <th ng-show="show_quota_guarantee" data-key="quota.guarantee.disk" class="end-group-column">Disk</th>
+      <th ng-show="show_quota_guarantee" data-key="quota.guarantee.disk">Disk</th>
+      <th ng-show="show_quota_guarantee" data-key="quota.guarantee.network_bandwidth" class="end-group-column">NetworkBandwidth</th>
 
       <th ng-show="show_quota_limit" data-key="quota.limit.cpus" class="begin-group-column">CPU</th>
       <th ng-show="show_quota_limit" data-key="quota.limit.gpus">GPU</th>
       <th ng-show="show_quota_limit" data-key="quota.limit.mem">Mem</th>
-      <th ng-show="show_quota_limit" data-key="quota.limit.disk" class="end-group-column">Disk</th>
+      <th ng-show="show_quota_limit" data-key="quota.limit.disk">Disk</th>
+      <th ng-show="show_quota_limit" data-key="quota.limit.network_bandwidth" class="end-group-column">NetworkBandwidth</th>
     </tr>
   </thead>
   <tbody>
@@ -97,8 +103,11 @@ Quota Limit
       <td ng-show="show_offered">
         {{((role.offered.mem * (1024 * 1024) || NaN) | dataSize) || "-"}}
       </td>
-      <td ng-show="show_offered" class="end-group-column">
+      <td ng-show="show_offered">
         {{((role.offered.disk * (1024 * 1024) || NaN) | dataSize) || "-"}}
+      </td>
+      <td ng-show="show_offered" class="end-group-column">
+        {{(role.offered.network_bandwidth | 0) || "-"}}
       </td>
 
       <td ng-show="show_allocated" class="begin-group-column">
@@ -110,8 +119,11 @@ Quota Limit
       <td ng-show="show_allocated">
         {{((role.allocated.mem * (1024 * 1024) || NaN) | dataSize) || "-"}}
       </td>
-      <td ng-show="show_allocated" class="end-group-column">
+      <td ng-show="show_allocated">
         {{((role.allocated.disk * (1024 * 1024) || NaN) | dataSize) || "-"}}
+      </td>
+      <td ng-show="show_allocated" class="end-group-column">
+        {{(role.allocated.network_bandwidth | 0) || "-"}}
       </td>
 
       <td ng-show="show_reserved" class="begin-group-column">
@@ -123,8 +135,11 @@ Quota Limit
       <td ng-show="show_reserved">
         {{((role.reserved.mem * (1024 * 1024) || NaN) | dataSize) || "-"}}
       </td>
-      <td ng-show="show_reserved" class="end-group-column">
+      <td ng-show="show_reserved">
         {{((role.reserved.disk * (1024 * 1024) || NaN) | dataSize) || "-"}}
+      </td>
+      <td ng-show="show_reserved" class="end-group-column">
+        {{(role.reserved.network_bandwidth | 0) || "-"}}
       </td>
 
       <td ng-show="show_quota_consumption" class="begin-group-column">
@@ -136,8 +151,11 @@ Quota Limit
       <td ng-show="show_quota_consumption">
         {{((role.quota.consumed.mem * (1024 * 1024) || NaN) | dataSize) || "-"}}
       </td>
-      <td ng-show="show_quota_consumption" class="end-group-column">
+      <td ng-show="show_quota_consumption">
         {{((role.quota.consumed.disk * (1024 * 1024) || NaN) | dataSize) || "-"}}
+      </td>
+      <td ng-show="show_quota_consumption" class="end-group-column">
+        {{(role.quota.consumed.network_bandwidth | 0) || "-"}}
       </td>
 
       <td ng-show="show_quota_guarantee" class="begin-group-column">
@@ -149,8 +167,11 @@ Quota Limit
       <td ng-show="show_quota_guarantee">
         {{((role.quota.guarantee.mem * (1024 * 1024) || NaN) | dataSize) || "-"}}
       </td>
-      <td ng-show="show_quota_guarantee" class="end-group-column">
+      <td ng-show="show_quota_guarantee">
         {{((role.quota.guarantee.disk * (1024 * 1024) || NaN) | dataSize) || "-"}}
+      </td>
+      <td ng-show="show_quota_guarantee" class="end-group-column">
+        {{(role.quota.guarantee.network_bandwidth | 0) || "-"}}
       </td>
 
       <td ng-show="show_quota_limit" class="begin-group-column">
@@ -162,8 +183,11 @@ Quota Limit
       <td ng-show="show_quota_limit">
         {{((role.quota.limit.mem * (1024 * 1024) || NaN) | dataSize) || "-"}}
       </td>
-      <td ng-show="show_quota_limit" class="end-group-column">
+      <td ng-show="show_quota_limit">
         {{((role.quota.limit.disk * (1024 * 1024) || NaN) | dataSize) || "-"}}
+      </td>
+      <td ng-show="show_quota_limit" class="end-group-column">
+        {{(role.quota.limit.network_bandwidth | 0) || "-"}}
       </td>
     </tr>
   </tbody>
