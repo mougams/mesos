@@ -16,17 +16,10 @@ jobs:
           key: mesos-built-${{ github.sha }}
       - name: Build the Docker image
         if: steps.cache.outputs.cache-hit != 'true'
-        run: curl https://raw.githubusercontent.com/criteo/mesosbuild/master/Dockerfile.automake |
-          docker build .
-          --file -
+        run: docker build .
+          --file docker/Dockerfile
           --tag mesosbuild:"$GITHUB_SHA"
           --build-arg CONFIGURE_EXTRA_FLAGS="--enable-test-only-regression"
-      - name: Test mesos
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: docker run
-          -e GTEST_FILTER='-EnvironmentSecretIsolatorTest.*:ExamplesTest.DiskFullFramework:ContainerizerTest.ROOT_CGROUPS_BalloonFramework:ResourceOffersTest.ResourceOfferWithMultipleSlaves'
-          mesosbuild:"$GITHUB_SHA"
-          make check -j $(nproc)
       - name: Save the build in tarball
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -38,6 +31,12 @@ jobs:
         with:
           name: mesos-built-${{ github.sha }}
           path: build/mesos-built-${{ github.sha }}.tar.gz
+      - name: Test mesos
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: docker run
+          -e GTEST_FILTER='-EnvironmentSecretIsolatorTest.*:ExamplesTest.DiskFullFramework:ContainerizerTest.ROOT_CGROUPS_BalloonFramework:ResourceOffersTest.ResourceOfferWithMultipleSlaves'
+          mesosbuild:"$GITHUB_SHA"
+          make check -j $(nproc)
   release:
     if: startsWith(github.ref, 'refs/tags/')
     needs: build

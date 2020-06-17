@@ -1,0 +1,4 @@
+#!/bin/sh
+
+export LD_LIBRARY_PATH=/src/mesos/src/.libs
+/src/mesos/src/.libs/mesos-agent --master=$MESOS_MASTER --port=$MESOS_PORT --hostname=$MESOS_HOSTNAME --work_dir=$MESOS_WORK_DIR --log_dir=$MESOS_LOG_DIR --containerizers=$MESOS_CONTAINERIZERS --resources=$MESOS_RESOURCES --no-systemd_enable_support --launcher_dir=$MESOS_EXEC_DIR --image_providers=docker --isolation=$MESOS_ISOLATION

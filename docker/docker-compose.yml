@@ -1,0 +1,138 @@
+# vim: set ts=2 sts=2 sw=2 expandtab:
+version: '2'
+
+x-mesos-slave:
+  &mesos-slave
+  extends:
+    file: resources/mesos.yml
+    service: mesos-slave
+  depends_on:
+    - zookeeper
+    - mesos-master
+  links:
+    - zookeeper:zookeeper
+    - mesos-master:master.mesos
+
+services:
+  zookeeper:
+    image: zookeeper:3.4.11
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.2
+
+  mesos-master:
+    image: runner-mesos
+    command: /usr/bin/mesos-master
+    hostname: localhost
+    ports:
+      - "5050:5050"
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.3
+    links:
+      - zookeeper
+    depends_on:
+      - zookeeper
+    environment:
+      MESOS_ZK: zk://zookeeper:2181/mesos
+      MESOS_CLUSTER: docker-compose
+      MESOS_HOSTNAME: localhost
+      MESOS_WORK_DIR: /var/tmp/mesos
+      MESOS_LOG_DIR: /var/log/mesos
+      LIBPROCESS_IP: 172.16.190.3
+    volumes:
+      - ${MESOS_SOURCES}:/src/mesos/
+
+  marathon-service:
+    image: mesosphere/marathon:v1.10.17
+    ports:
+      - "8080:8080"
+    hostname: localhost
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.5
+    links:
+      - zookeeper
+      - mesos-master
+    depends_on:
+      - zookeeper
+      - mesos-master
+    environment:
+      - MARATHON_ZK=zk://zookeeper:2181/marathon
+      - MARATHON_MASTER=zk://zookeeper:2181/mesos
+      - LIBPROCESS_IP=172.16.190.5
+
+  mesos-slave-1:
+    << : *mesos-slave
+    hostname: localhost
+    ports:
+      - "5051:5051"
+    environment:
+      MESOS_PORT: 5051
+      LIBPROCESS_IP: 172.16.190.10
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.10
+
+  mesos-slave-2:
+    << : *mesos-slave
+    hostname: localhost
+    ports:
+      - "5052:5052"
+    environment:
+      MESOS_PORT: 5052
+      LIBPROCESS_IP: 172.16.190.11
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.11
+
+  mesos-slave-3:
+    << : *mesos-slave
+    hostname: localhost
+    ports:
+      - "5053:5053"
+    environment:
+      MESOS_PORT: 5053
+      LIBPROCESS_IP: 172.16.190.12
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.12
+
+  mesos-slave-4:
+    << : *mesos-slave
+    hostname: localhost
+    ports:
+      - "5054:5054"
+    environment:
+      MESOS_PORT: 5054
+      LIBPROCESS_IP: 172.16.190.13
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.13
+
+  mesos-slave-5:
+    << : *mesos-slave
+    hostname: localhost
+    ports:
+      - "5055:5055"
+    environment:
+      MESOS_PORT: 5055
+      LIBPROCESS_IP: 172.16.190.14
+    networks:
+      app_net:
+        ipv4_address: 172.16.190.14
+
+volumes:
+  dist: {}
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      -
+        subnet: 172.16.190.0/24
