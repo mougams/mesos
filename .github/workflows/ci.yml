@@ -33,7 +33,7 @@ jobs:
           path: build/mesos-built-${{ github.sha }}.tar.gz
 
       - name: Test mesos
-        run: docker run
+        run: docker run --privileged --cap-add=ALL
           -e GTEST_FILTER='-EnvironmentSecretIsolatorTest.*:ExamplesTest.DiskFullFramework:ContainerizerTest.ROOT_CGROUPS_BalloonFramework:ResourceOffersTest.ResourceOfferWithMultipleSlaves'
           mesosbuild:"$GITHUB_SHA"
           make check -j $(nproc)
