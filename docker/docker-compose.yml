@@ -44,7 +44,7 @@ services:
       MESOS_LOG_DIR: /var/log/mesos
       LIBPROCESS_IP: 172.16.190.3
     volumes:
-      - ${MESOS_SOURCES}:/src/mesos/
+      - ../:/src/mesos/
 
   marathon-service:
     image: mesosphere/marathon:v1.10.17
@@ -70,9 +70,11 @@ services:
     hostname: localhost
     ports:
       - "5051:5051"
+      - "11100-11199:11100-11199"
     environment:
       MESOS_PORT: 5051
       LIBPROCESS_IP: 172.16.190.10
+      MESOS_RESOURCES: ports(*):[11100-11199]
     networks:
       app_net:
         ipv4_address: 172.16.190.10
@@ -82,9 +84,11 @@ services:
     hostname: localhost
     ports:
       - "5052:5052"
+      - "11200-11299:11200-11299"
     environment:
       MESOS_PORT: 5052
       LIBPROCESS_IP: 172.16.190.11
+      MESOS_RESOURCES: ports(*):[11200-11299]
     networks:
       app_net:
         ipv4_address: 172.16.190.11
@@ -94,9 +98,11 @@ services:
     hostname: localhost
     ports:
       - "5053:5053"
+      - "11300-11399:11300-11399"
     environment:
       MESOS_PORT: 5053
       LIBPROCESS_IP: 172.16.190.12
+      MESOS_RESOURCES: ports(*):[11300-11399]
     networks:
       app_net:
         ipv4_address: 172.16.190.12
@@ -106,9 +112,11 @@ services:
     hostname: localhost
     ports:
       - "5054:5054"
+      - "11400-11499:11400-11499"
     environment:
       MESOS_PORT: 5054
       LIBPROCESS_IP: 172.16.190.13
+      MESOS_RESOURCES: ports(*):[11400-11499]
     networks:
       app_net:
         ipv4_address: 172.16.190.13
@@ -118,9 +126,11 @@ services:
     hostname: localhost
     ports:
       - "5055:5055"
+      - "11500-11599:11500-11599"
     environment:
       MESOS_PORT: 5055
       LIBPROCESS_IP: 172.16.190.14
+      MESOS_RESOURCES: ports(*):[11500-11599]
     networks:
       app_net:
         ipv4_address: 172.16.190.14
@@ -134,5 +144,4 @@ networks:
     ipam:
       driver: default
       config:
-      -
-        subnet: 172.16.190.0/24
+        - subnet: 172.16.190.0/24
