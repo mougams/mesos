@@ -523,7 +523,7 @@ void HierarchicalAllocatorProcess::recover(
 
   // TODO(alexr): Consider exposing these constants.
   const Duration ALLOCATION_HOLD_OFF_RECOVERY_TIMEOUT = Minutes(10);
-  const double AGENT_RECOVERY_FACTOR = 0.8;
+  const double AGENT_RECOVERY_FACTOR = 0.95;
 
   // Record the number of expected agents.
   expectedAgentCount =
