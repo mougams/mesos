@@ -1,0 +1,16 @@
+pull_request_rules:
+  - name: remove outdated reviews
+    conditions:
+    - "base~=criteo/.*"
+    actions:
+      dismiss_reviews: {}
+  - name: automatic merge on CI success and review
+    conditions:
+      - status-success=Docker Image CI
+      - "#approved-reviews-by>=1"
+      - "base~=criteo/.*"
+      - "#changes-requested-reviews-by=0"
+      - label=ready-to-submit
+    actions:
+      merge:
+        method: merge
