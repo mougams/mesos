@@ -846,8 +846,8 @@ void HierarchicalAllocatorProcess::addSlave(
   if (paused &&
       expectedAgentCount.isSome() &&
       (static_cast<int>(slaves.size()) >= expectedAgentCount.get())) {
-    VLOG(1) << "Recovery complete: sufficient amount of agents added; "
-            << slaves.size() << " agents known to the allocator";
+    LOG(INFO) << "Recovery complete: sufficient amount of agents added; "
+              << slaves.size() << " agents known to the allocator";
 
     expectedAgentCount = None();
     resume();
@@ -1658,7 +1658,7 @@ void HierarchicalAllocatorProcess::pause()
 void HierarchicalAllocatorProcess::resume()
 {
   if (paused) {
-    VLOG(1) << "Allocation resumed";
+    LOG(INFO) << "Allocation resumed";
 
     paused = false;
   }
