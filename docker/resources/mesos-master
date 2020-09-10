@@ -1,3 +1,3 @@
 #!/bin/sh
 
-/src/mesos/src/mesos-master --zk=$MESOS_ZK --quorum=1 --cluster=$MESOS_CLUSTER --hostname=$MESOS_HOSTNAME --work_dir=$MESOS_WORK_DIR --log_dir=$MESOS_LOG_DIR --webui_dir=/src/mesos/src/webui
+/src/mesos/src/mesos-master --hierarchical_recovery_factor=0.8 --zk=$MESOS_ZK --quorum=1 --cluster=$MESOS_CLUSTER --hostname=$MESOS_HOSTNAME --work_dir=$MESOS_WORK_DIR --log_dir=$MESOS_LOG_DIR --webui_dir=/src/mesos/src/webui

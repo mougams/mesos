@@ -67,6 +67,10 @@ struct Options
   bool publishPerFrameworkMetrics = true;
 
   Option<std::string> slaveSorterResourceWeights;
+
+  // Recovery options
+  Duration recoveryTimeout = Minutes(10);
+  float agentRecoveryFactor = 0.80;
 };
 
 
