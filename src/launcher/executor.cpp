@@ -979,7 +979,8 @@ private:
         // received signal before os::killtree() failed.
         os::kill(pid.get(), SIGTERM);
       } else {
-        LOG(INFO) << "Sent SIGTERM to the following process trees:\n"
+        LOG(INFO) << "Sent SIGTERM to the following process " << pid.get();
+        VLOG(2) << "Sent SIGTERM to the following process trees:\n"
                   << stringify(trees.get());
       }
 
@@ -1112,7 +1113,8 @@ private:
       // we send SIGKILL directly.
       os::kill(pid.get(), SIGKILL);
     } else {
-      LOG(INFO) << "Killed the following process trees:\n"
+      LOG(INFO) << "Sent SIGTERM to the following process " << pid.get();
+      VLOG(2) << "Killed the following process trees:\n"
                 << stringify(trees.get());
     }
   }
