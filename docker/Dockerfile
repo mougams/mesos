@@ -62,6 +62,8 @@ COPY docker/resources/mesos-master /usr/bin/mesos-master
 RUN chmod 0755 /usr/bin/mesos-master
 RUN chmod 0755 /usr/bin/mesos-agent
 
+RUN yum -y install ruby
+
 CMD /usr/bin/mesos-agent
 
 # Second stage: Building (version specific)

@@ -74,7 +74,7 @@ services:
     environment:
       MESOS_PORT: 5051
       LIBPROCESS_IP: 172.16.190.10
-      MESOS_RESOURCES: ports(*):[11100-11199]
+      MESOS_RESOURCES: ports(*):[11100-11199];network_bandwidth(*):1000
     networks:
       app_net:
         ipv4_address: 172.16.190.10
@@ -88,7 +88,7 @@ services:
     environment:
       MESOS_PORT: 5052
       LIBPROCESS_IP: 172.16.190.11
-      MESOS_RESOURCES: ports(*):[11200-11299]
+      MESOS_RESOURCES: ports(*):[11200-11299];network_bandwidth(*):1000
     networks:
       app_net:
         ipv4_address: 172.16.190.11
@@ -102,7 +102,7 @@ services:
     environment:
       MESOS_PORT: 5053
       LIBPROCESS_IP: 172.16.190.12
-      MESOS_RESOURCES: ports(*):[11300-11399]
+      MESOS_RESOURCES: ports(*):[11300-11399];network_bandwidth(*):1000
     networks:
       app_net:
         ipv4_address: 172.16.190.12
@@ -116,7 +116,7 @@ services:
     environment:
       MESOS_PORT: 5054
       LIBPROCESS_IP: 172.16.190.13
-      MESOS_RESOURCES: ports(*):[11400-11499]
+      MESOS_RESOURCES: ports(*):[11400-11499];network_bandwidth(*):1000
     networks:
       app_net:
         ipv4_address: 172.16.190.13
@@ -130,7 +130,7 @@ services:
     environment:
       MESOS_PORT: 5055
       LIBPROCESS_IP: 172.16.190.14
-      MESOS_RESOURCES: ports(*):[11500-11599]
+      MESOS_RESOURCES: ports(*):[11500-11599];network_bandwidth(*):1000
     networks:
       app_net:
         ipv4_address: 172.16.190.14
