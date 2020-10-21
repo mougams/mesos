@@ -802,6 +802,11 @@ mesos::internal::slave::Flags::Flags()
       "pid namespace with agent if the framework requests it. This flag will\n"
       "be ignored if the `namespaces/pid` isolator is not enabled.\n",
       false);
+
+  add(&Flags::default_ipc_mode,
+      "default_ipc_mode",
+      "`private` or `share_parent`"
+      );
 #endif
 
   add(&Flags::agent_features,

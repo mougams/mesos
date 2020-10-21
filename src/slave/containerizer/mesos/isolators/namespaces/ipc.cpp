@@ -111,6 +111,14 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
   Option<LinuxInfo::IpcMode> ipcMode;
   Option<Bytes> shmSize;
 
+  if (flags.default_ipc_mode.isSome()) {
+    if (flags.default_ipc_mode.get() == "private") {
+      ipcMode = LinuxInfo::PRIVATE;
+    } else if (flags.default_ipc_mode.get() == "share_parent") {
+      ipcMode = LinuxInfo::SHARE_PARENT;
+    }
+  }
+
   // Get the container's IPC mode and size of /dev/shm.
   if (containerConfig.has_container_info() &&
       containerConfig.container_info().has_linux_info()) {

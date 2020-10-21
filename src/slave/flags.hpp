@@ -128,6 +128,7 @@ public:
   Option<Bytes> default_container_shm_size;
   bool disallow_sharing_agent_ipc_namespace;
   bool disallow_sharing_agent_pid_namespace;
+  Option<std::string> default_ipc_mode;
 #endif
   Option<Firewall> firewall_rules;
   Option<Path> credential;
