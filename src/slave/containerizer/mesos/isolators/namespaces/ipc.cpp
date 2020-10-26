@@ -113,7 +113,11 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
 
   if (flags.default_ipc_mode.isSome()) {
     if (flags.default_ipc_mode.get() == "private") {
-      ipcMode = LinuxInfo::PRIVATE;
+      if (containerId.has_parent()) {
+        ipcMode = LinuxInfo::SHARE_PARENT;
+      } else {
+        ipcMode = LinuxInfo::PRIVATE;
+      }
     } else if (flags.default_ipc_mode.get() == "share_parent") {
       ipcMode = LinuxInfo::SHARE_PARENT;
     }
