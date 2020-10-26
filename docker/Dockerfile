@@ -38,21 +38,7 @@ WORKDIR /src/mesos
 
 ARG CONFIGURE_EXTRA_FLAGS
 
-CMD autoreconf --install -Wall --verbose && \
-  ./configure \
-     CFLAGS="-Wno-deprecated-declarations" \
-     CXXFLAGS="-Wno-deprecated-declarations" \
-     --disable-silent-rules \
-     --disable-python \
-     --disable-python-dependency-install \
-     --enable-libevent \
-     --enable-ssl \
-     --enable-optimize \
-     --enable-seccomp-isolator \
-     --with-network-isolator \
-     --enable-xfs-disk-isolator \
-     ${CONFIGURE_EXTRA_FLAGS} && \
-  make -j "$(nproc)"
+CMD docker/build_mesos.sh ${CONFIGURE_EXTRA_FLAGS}
 
 FROM builder AS runner
 
@@ -67,28 +53,11 @@ RUN yum -y install ruby
 CMD /usr/bin/mesos-agent
 
 # Second stage: Building (version specific)
-FROM builder AS builded
+FROM runner AS built
 
 COPY . /src/mesos
 WORKDIR /src/mesos
-RUN autoreconf --install -Wall --verbose
-
-RUN ./configure \
-     CFLAGS="-Wno-deprecated-declarations" \
-     CXXFLAGS="-Wno-deprecated-declarations" \
-     --disable-silent-rules \
-     --disable-python \
-     --disable-python-dependency-install \
-     --enable-libevent \
-     --enable-ssl \
-     --enable-optimize \
-     --enable-seccomp-isolator \
-     --with-network-isolator \
-     --enable-xfs-disk-isolator \
-     ${CONFIGURE_EXTRA_FLAGS}
-
-RUN make -j "$(nproc)"
+RUN docker/build_mesos.sh ${CONFIGURE_EXTRA_FLAGS}
 
 ENV MESOS_ROOT_DIR=/src/mesos
 ENV MESOS_BUILD_DIR=/src/mesos
-
