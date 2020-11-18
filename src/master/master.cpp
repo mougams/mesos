@@ -907,7 +907,10 @@ void Master::initialize()
         [this](const process::http::Request& request,
                const Option<Principal>& principal) {
           logRequest(request);
-          return http.api(request, principal);
+          return http.api(request, principal)
+            .onReady([request](const process::http::Response& response) {
+              logResponse(request, response);
+            });
         });
   route("/api/v1/scheduler",
         DEFAULT_HTTP_FRAMEWORK_AUTHENTICATION_REALM,
@@ -915,7 +918,10 @@ void Master::initialize()
         [this](const process::http::Request& request,
                const Option<Principal>& principal) {
           logRequest(request);
-          return http.scheduler(request, principal);
+          return http.scheduler(request, principal)
+            .onReady([request](const process::http::Response& response) {
+              logResponse(request, response);
+            });
         });
   route("/create-volumes",
         READWRITE_HTTP_AUTHENTICATION_REALM,
