@@ -164,10 +164,6 @@ public:
 
     friend class Subprocess;
 
-    /**
-     * A simple `ParentHook` to execute arbitrary scripts
-     */
-    static ParentHook EXEC(const std::string& cmdstr, const std::string& json);
 #ifdef __WINDOWS__
     /**
      * A Windows Job Object is used to manage groups of processes, which

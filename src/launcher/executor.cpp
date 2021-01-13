@@ -76,7 +76,6 @@
 #include "common/parse.hpp"
 #include "common/protobuf_utils.hpp"
 #include "common/status_utils.hpp"
-#include "common/temporary_file.hpp"
 
 #include "executor/v0_v1executor.hpp"
 
@@ -122,8 +121,6 @@ using mesos::v1::executor::Mesos;
 using mesos::v1::executor::MesosBase;
 using mesos::v1::executor::V0ToV1Adapter;
 
-using mesos::internal::TemporaryFile;
-
 namespace mesos {
 namespace internal {
 
@@ -145,8 +142,7 @@ public:
       const Option<vector<gid_t>> _taskSupplementaryGroups,
       const FrameworkID& _frameworkId,
       const ExecutorID& _executorId,
-      const Duration& _shutdownGracePeriod,
-      const Option<string>& _executorHook)
+      const Duration& _shutdownGracePeriod)
     : ProcessBase(process::ID::generate("command-executor")),
       state(DISCONNECTED),
       taskData(None()),
@@ -169,7 +165,6 @@ public:
       effectiveCapabilities(_effectiveCapabilities),
       boundingCapabilities(_boundingCapabilities),
       ttySlavePath(_ttySlavePath),
-      executorHook(_executorHook),
       taskLaunchInfo(_taskLaunchInfo),
       taskSupplementaryGroups(_taskSupplementaryGroups),
       frameworkId(_frameworkId),
@@ -430,8 +425,7 @@ protected:
       const Option<CapabilityInfo>& boundingCapabilities,
       const Option<string>& ttySlavePath,
       const Option<ContainerLaunchInfo>& taskLaunchInfo,
-      const Option<vector<gid_t>>& taskSupplementaryGroups,
-      const Option<string>& hook)
+      const Option<vector<gid_t>>& taskSupplementaryGroups)
   {
     // Prepare the flags to pass to the launch process.
     slave::MesosContainerizerLaunch::Flags launchFlags;
@@ -551,14 +545,6 @@ protected:
     vector<process::Subprocess::ChildHook> childHooks;
     if (ttySlavePath.isNone()) {
       childHooks.emplace_back(Subprocess::ChildHook::SETSID());
-    }
-
-    TemporaryFile inputFile;
-    if(hook.isSome()) {
-      JSON::Object inputsJson;
-      inputsJson.values["launch_info"] = JSON::protobuf(launchInfo);
-      inputFile.write(stringify(inputsJson));
-      parentHooks.emplace_back(Subprocess::ParentHook::EXEC(hook.get(), inputFile.filepath()));
     }
 
     Try<Subprocess> s = subprocess(
@@ -747,8 +733,7 @@ protected:
         boundingCapabilities,
         ttySlavePath,
         taskLaunchInfo,
-        taskSupplementaryGroups,
-        executorHook);
+        taskSupplementaryGroups);
 
     LOG(INFO) << "Forked command at " << pid.get();
 
@@ -1281,7 +1266,6 @@ private:
   Option<CapabilityInfo> effectiveCapabilities;
   Option<CapabilityInfo> boundingCapabilities;
   Option<string> ttySlavePath;
-  Option<string> executorHook;
   Option<ContainerLaunchInfo> taskLaunchInfo;
   Option<vector<gid_t>> taskSupplementaryGroups;
   const FrameworkID frameworkId;
@@ -1439,8 +1423,6 @@ int main(int argc, char** argv)
     shutdownGracePeriod = parse.get();
   }
 
-  Option<string> executor_hook = os::getenv("MESOS_EXECUTOR_HOOK");
-
   Option<ContainerLaunchInfo> task_launch_info;
   if (flags.task_launch_info.isSome()) {
     Try<ContainerLaunchInfo> parse =
@@ -1472,8 +1454,7 @@ int main(int argc, char** argv)
           flags.task_supplementary_groups,
           frameworkId,
           executorId,
-          shutdownGracePeriod,
-          executor_hook));
+          shutdownGracePeriod));
 
   process::spawn(executor.get());
   process::wait(executor.get());
