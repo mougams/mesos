@@ -263,6 +263,10 @@ static Future<int> download(
     argv.push_back("-y");
     argv.push_back(std::to_string(static_cast<long>(stallTimeout->secs())));
   }
+  // Add timeout for curl to abort if connection time is too long
+  // the -y option used above does not cover that time
+  argv.push_back("--connect-timeout");
+  argv.push_back("30");
 
   argv.push_back(uri);
 
