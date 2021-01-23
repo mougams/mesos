@@ -258,7 +258,7 @@ Try<Capabilities> Capabilities::create()
     return Error(
         "System last capability value '" + stringify(lastCap.get()) +
         "' is greater than maximum supported number of capabilities '" +
-        stringify(MAX_CAPABILITY) + "'");
+        stringify(static_cast<int>(MAX_CAPABILITY)) + "'");
   }
 
   // Test whether the kernel supports ambinent capabilities by testing
@@ -456,45 +456,48 @@ CapabilityInfo convert(const std::set<Capability>& capabilities)
 ostream& operator<<(ostream& stream, const Capability& capability)
 {
   switch (capability) {
-    case CHOWN:             return stream << "CHOWN";
-    case DAC_OVERRIDE:      return stream << "DAC_OVERRIDE";
-    case DAC_READ_SEARCH:   return stream << "DAC_READ_SEARCH";
-    case FOWNER:            return stream << "FOWNER";
-    case FSETID:            return stream << "FSETID";
-    case KILL:              return stream << "KILL";
-    case SETGID:            return stream << "SETGID";
-    case SETUID:            return stream << "SETUID";
-    case SETPCAP:           return stream << "SETPCAP";
-    case LINUX_IMMUTABLE:   return stream << "LINUX_IMMUTABLE";
-    case NET_BIND_SERVICE:  return stream << "NET_BIND_SERVICE";
-    case NET_BROADCAST:     return stream << "NET_BROADCAST";
-    case NET_ADMIN:         return stream << "NET_ADMIN";
-    case NET_RAW:           return stream << "NET_RAW";
-    case IPC_LOCK:          return stream << "IPC_LOCK";
-    case IPC_OWNER:         return stream << "IPC_OWNER";
-    case SYS_MODULE:        return stream << "SYS_MODULE";
-    case SYS_RAWIO:         return stream << "SYS_RAWIO";
-    case SYS_CHROOT:        return stream << "SYS_CHROOT";
-    case SYS_PTRACE:        return stream << "SYS_PTRACE";
-    case SYS_PACCT:         return stream << "SYS_PACCT";
-    case SYS_ADMIN:         return stream << "SYS_ADMIN";
-    case SYS_BOOT:          return stream << "SYS_BOOT";
-    case SYS_NICE:          return stream << "SYS_NICE";
-    case SYS_RESOURCE:      return stream << "SYS_RESOURCE";
-    case SYS_TIME:          return stream << "SYS_TIME";
-    case SYS_TTY_CONFIG:    return stream << "SYS_TTY_CONFIG";
-    case MKNOD:             return stream << "MKNOD";
-    case LEASE:             return stream << "LEASE";
-    case AUDIT_WRITE:       return stream << "AUDIT_WRITE";
-    case AUDIT_CONTROL:     return stream << "AUDIT_CONTROL";
-    case SETFCAP:           return stream << "SETFCAP";
-    case MAC_OVERRIDE:      return stream << "MAC_OVERRIDE";
-    case MAC_ADMIN:         return stream << "MAC_ADMIN";
-    case SYSLOG:            return stream << "SYSLOG";
-    case WAKE_ALARM:        return stream << "WAKE_ALARM";
-    case BLOCK_SUSPEND:     return stream << "BLOCK_SUSPEND";
-    case AUDIT_READ:        return stream << "AUDIT_READ";
-    case MAX_CAPABILITY:    UNREACHABLE();
+    case CHOWN:                   return stream << "CHOWN";
+    case DAC_OVERRIDE:            return stream << "DAC_OVERRIDE";
+    case DAC_READ_SEARCH:         return stream << "DAC_READ_SEARCH";
+    case FOWNER:                  return stream << "FOWNER";
+    case FSETID:                  return stream << "FSETID";
+    case KILL:                    return stream << "KILL";
+    case SETGID:                  return stream << "SETGID";
+    case SETUID:                  return stream << "SETUID";
+    case SETPCAP:                 return stream << "SETPCAP";
+    case LINUX_IMMUTABLE:         return stream << "LINUX_IMMUTABLE";
+    case NET_BIND_SERVICE:        return stream << "NET_BIND_SERVICE";
+    case NET_BROADCAST:           return stream << "NET_BROADCAST";
+    case NET_ADMIN:               return stream << "NET_ADMIN";
+    case NET_RAW:                 return stream << "NET_RAW";
+    case IPC_LOCK:                return stream << "IPC_LOCK";
+    case IPC_OWNER:               return stream << "IPC_OWNER";
+    case SYS_MODULE:              return stream << "SYS_MODULE";
+    case SYS_RAWIO:               return stream << "SYS_RAWIO";
+    case SYS_CHROOT:              return stream << "SYS_CHROOT";
+    case SYS_PTRACE:              return stream << "SYS_PTRACE";
+    case SYS_PACCT:               return stream << "SYS_PACCT";
+    case SYS_ADMIN:               return stream << "SYS_ADMIN";
+    case SYS_BOOT:                return stream << "SYS_BOOT";
+    case SYS_NICE:                return stream << "SYS_NICE";
+    case SYS_RESOURCE:            return stream << "SYS_RESOURCE";
+    case SYS_TIME:                return stream << "SYS_TIME";
+    case SYS_TTY_CONFIG:          return stream << "SYS_TTY_CONFIG";
+    case MKNOD:                   return stream << "MKNOD";
+    case LEASE:                   return stream << "LEASE";
+    case AUDIT_WRITE:             return stream << "AUDIT_WRITE";
+    case AUDIT_CONTROL:           return stream << "AUDIT_CONTROL";
+    case SETFCAP:                 return stream << "SETFCAP";
+    case MAC_OVERRIDE:            return stream << "MAC_OVERRIDE";
+    case MAC_ADMIN:               return stream << "MAC_ADMIN";
+    case SYSLOG:                  return stream << "SYSLOG";
+    case WAKE_ALARM:              return stream << "WAKE_ALARM";
+    case BLOCK_SUSPEND:           return stream << "BLOCK_SUSPEND";
+    case AUDIT_READ:              return stream << "AUDIT_READ";
+    case PERFMON:                 return stream << "PERFMON";
+    case BPF:                     return stream << "BPF";
+    case CHECKPOINT_RESTORE:      return stream << "CHECKPOINT_RESTORE";
+    case MAX_CAPABILITY:          UNREACHABLE();
   }
 
   UNREACHABLE();
