@@ -140,6 +140,14 @@ static Future<http::Response> curl(
     argv.push_back(std::to_string(static_cast<long>(stallTimeout->secs())));
   }
 
+  // to avoid introducing a new option, we simply reuse stall_timeout option
+  // when dowloading the docker image manifest (supposed very small) any timeout larger
+  // than a few seconds will do it.
+  if (stallTimeout.isSome()) {
+    argv.push_back("--max-time");
+    argv.push_back(std::to_string(static_cast<long>(stallTimeout->secs())));
+  }
+
   argv.push_back(strings::trim(uri));
 
   // TODO(jieyu): Kill the process if discard is called.
@@ -267,6 +275,16 @@ static Future<int> download(
   // the -y option used above does not cover that time
   argv.push_back("--connect-timeout");
   argv.push_back("30");
+
+  // to avoid introducing a new option, we simply reuse stall_timeout option
+  // for container image layers we simply multiply this value by a constant factor
+  // here we use ~5 times the stall timeout purely based on empirical values used at Criteo
+  // (5minutes is the registration timeout for the executor, stall timeout is 60s)
+  // TODO(g.seux): take the time for a proper option
+  if (stallTimeout.isSome()) {
+    argv.push_back("--max-time");
+    argv.push_back(std::to_string(5 * static_cast<long>(stallTimeout->secs())));
+  }
 
   argv.push_back(uri);
 
