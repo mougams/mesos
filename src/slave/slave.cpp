@@ -3665,16 +3665,18 @@ void Slave::launchExecutor(
       NetworkInfo* criteoNet = containerInfo->add_network_infos();
       criteoNet->set_name("criteo");
 
-      Ports ports = *containerConfig.mutable_executor_info()
-                       ->mutable_discovery()
-                       ->mutable_ports();
+      if(containerConfig.mutable_executor_info()->has_discovery()){
+        // We need to take the defined ports and map them in the public subnet
+        Ports ports = *containerConfig.mutable_executor_info()
+                  ->mutable_discovery()
+                  ->mutable_ports();
 
-      // We need to take the defined ports and map them in the public subnet
-      for (const auto port : *ports.mutable_ports()) {
-        auto p = criteoNet->add_port_mappings();
-        p->set_host_port(port.number());
-        p->set_container_port(port.number());
-        p->set_protocol(port.protocol());
+        for (const auto port : *ports.mutable_ports()) {
+          auto p = criteoNet->add_port_mappings();
+          p->set_host_port(port.number());
+          p->set_container_port(port.number());
+          p->set_protocol(port.protocol());
+        }
       }
     }
   }
