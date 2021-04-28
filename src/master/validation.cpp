@@ -614,10 +614,10 @@ Option<Error> validateUpdate(
   }
 
   if (newInfo.user() != oldInfo.user()) {
-    return Error(
-        "Updating 'FrameworkInfo.user' is unsupported"
-        "; attempted to update from '" + oldInfo.user() + "'"
-        " to '" + newInfo.user() + "'");
+    LOG(WARNING)
+      << "Updating 'FrameworkInfo.user' is unsupported"
+      << "; attempted to update from '" << oldInfo.user() << "'"
+      << " to '" << newInfo.user() << "'";
   }
 
   if (newInfo.checkpoint() != oldInfo.checkpoint()) {
