@@ -507,10 +507,13 @@ void Framework::update(const FrameworkInfo& newInfo)
   // TODO(asekretenko): Make it possible to update 'user'
   // and 'checkpoint' as per design doc in MESOS-703.
   CHECK_EQ(info.principal(), newInfo.principal());
-  CHECK_EQ(info.user(), newInfo.user());
   CHECK_EQ(info.checkpoint(), newInfo.checkpoint());
 
+
+  // Preserve immutable field 'user'
+  std::string user = info.user();
   info.CopyFrom(newInfo);
+  *info.mutable_user() = user;
 
   // Save the old list of roles for later.
   std::set<std::string> oldRoles = roles;

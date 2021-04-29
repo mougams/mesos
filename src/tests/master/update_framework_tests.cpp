@@ -237,9 +237,6 @@ TEST_F(UpdateFrameworkTest, UserChangeFails)
   Future<APIResult> result = callUpdateFramework(&mesos, update);
 
   AWAIT_READY(result);
-  EXPECT_EQ(result->status_code(), 400u);
-  EXPECT_TRUE(strings::contains(
-      result->error(), "Updating 'FrameworkInfo.user' is unsupported"));
 
   // Check that no partial update occurred.
   Future<v1::master::Response::GetFrameworks> frameworks =
@@ -247,12 +244,7 @@ TEST_F(UpdateFrameworkTest, UserChangeFails)
   AWAIT_READY(frameworks);
   ASSERT_EQ(frameworks->frameworks_size(), 1);
 
-  FrameworkInfo expected = DEFAULT_FRAMEWORK_INFO;
-  *expected.mutable_id() = subscribed->framework_id();
-  EXPECT_NONE(diff(frameworks->frameworks(0).framework_info(), expected));
-
-  // Sanity check for diff()
-  EXPECT_SOME(diff(update, expected));
+  ASSERT_NE(frameworks->frameworks(0).framework_info().user(), update.user());
 }
 
 

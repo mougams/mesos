@@ -4786,7 +4786,7 @@ TEST_F(FrameworkInfoValidationTest, ValidateUpdate)
     FrameworkInfo frameworkInfo = DEFAULT_FRAMEWORK_INFO;
     *frameworkInfo.mutable_user() += "_foo";
 
-    EXPECT_SOME(framework::validateUpdate(
+    EXPECT_NONE(framework::validateUpdate(
         DEFAULT_FRAMEWORK_INFO, frameworkInfo));
   }
 
