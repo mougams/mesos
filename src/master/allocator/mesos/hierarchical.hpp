@@ -22,7 +22,7 @@
 #include <string>
 
 #include <mesos/mesos.hpp>
-
+#include <mesos/allocator/tsl/ordered_map.h>
 #include <process/future.hpp>
 #include <process/id.hpp>
 #include <process/owned.hpp>
@@ -456,7 +456,7 @@ public:
       const mesos::allocator::Options& options,
       const lambda::function<
           void(const FrameworkID&,
-               const hashmap<std::string, hashmap<SlaveID, Resources>>&)>&
+               const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>&)>&
         offerCallback,
       const lambda::function<
           void(const FrameworkID&,
@@ -652,7 +652,7 @@ protected:
 
   lambda::function<
       void(const FrameworkID&,
-           const hashmap<std::string, hashmap<SlaveID, Resources>>&)>
+           const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>&)>
     offerCallback;
 
   lambda::function<

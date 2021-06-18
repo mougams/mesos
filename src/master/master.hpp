@@ -33,6 +33,7 @@
 #include <mesos/maintenance/maintenance.hpp>
 
 #include <mesos/allocator/allocator.hpp>
+#include <mesos/allocator/tsl/ordered_map.h>
 #include <mesos/master/contender.hpp>
 #include <mesos/master/detector.hpp>
 #include <mesos/master/master.hpp>
@@ -495,7 +496,7 @@ public:
 
   void offer(
       const FrameworkID& frameworkId,
-      const hashmap<std::string, hashmap<SlaveID, Resources>>& resources);
+      const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>& resources);
 
   void inverseOffer(
       const FrameworkID& frameworkId,

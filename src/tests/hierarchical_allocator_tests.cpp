@@ -24,6 +24,7 @@
 #include <gmock/gmock.h>
 
 #include <mesos/allocator/allocator.hpp>
+#include <mesos/allocator/tsl/ordered_map.h>
 
 #include <process/clock.hpp>
 #include <process/future.hpp>
@@ -87,20 +88,22 @@ struct Allocation
 
   Allocation(
       const FrameworkID& frameworkId_,
-      const hashmap<string, hashmap<SlaveID, Resources>>& resources_)
+      const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources_)
     : frameworkId(frameworkId_),
       resources(resources_)
   {
     // Ensure the resources have the allocation info set.
     foreachkey (const string& role, resources) {
-      foreachvalue (Resources& r, resources.at(role)) {
-        r.allocate(role);
+      tsl::ordered_map<SlaveID,Resources>& roleResources = resources.at(role);
+        for ( auto it=roleResources.begin(); it!=roleResources.end(); it++){
+          Resources& r = it.value();
+          r.allocate(role);
+        }
       }
-    }
   }
 
   FrameworkID frameworkId;
-  hashmap<string, hashmap<SlaveID, Resources>> resources;
+  hashmap<string, tsl::ordered_map<SlaveID, Resources>> resources;
 };
 
 
@@ -109,7 +112,7 @@ bool operator==(const Allocation& left, const Allocation& right)
   return left.frameworkId == right.frameworkId &&
       left.resources == right.resources;
 }
-
+  
 
 ostream& operator<<(ostream& stream, const Allocation& allocation)
 {
@@ -143,7 +146,7 @@ protected:
       const master::Flags& _flags = master::Flags(),
       Option<lambda::function<
           void(const FrameworkID&,
-               const hashmap<string, hashmap<SlaveID, Resources>>&)>>
+               const hashmap<string, tsl::ordered_map<SlaveID, Resources>>&)>>
                  offerCallback = None(),
       Option<lambda::function<
           void(const FrameworkID&,
@@ -155,7 +158,7 @@ protected:
     if (offerCallback.isNone()) {
       offerCallback =
         [this](const FrameworkID& frameworkId,
-               const hashmap<string, hashmap<SlaveID, Resources>>& resources) {
+               const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources) {
           Allocation allocation;
           allocation.frameworkId = frameworkId;
           allocation.resources = resources;
@@ -7038,7 +7041,7 @@ TEST_P(HierarchicalAllocations_BENCHMARK_Test, PersistentVolumes)
 
   auto offerCallback = [&offers](
       const FrameworkID& frameworkId,
-      const hashmap<string, hashmap<SlaveID, Resources>>& resources_)
+      const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources_)
   {
     foreachkey (const string& role, resources_) {
       foreachpair (const SlaveID& slaveId,
@@ -7249,7 +7252,7 @@ TEST_P(HierarchicalAllocator_BENCHMARK_Test, AddAndUpdateSlave)
 
   auto offerCallback = [&offerCallbacks](
       const FrameworkID& frameworkId,
-      const hashmap<string, hashmap<SlaveID, Resources>>& resources) {
+      const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources) {
     offerCallbacks++;
   };
 
@@ -7351,7 +7354,7 @@ TEST_P(HierarchicalAllocator_BENCHMARK_Test, DeclineOffers)
 
   auto offerCallback = [&offers](
       const FrameworkID& frameworkId,
-      const hashmap<string, hashmap<SlaveID, Resources>>& resources_)
+      const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources_)
   {
     foreachkey (const string& role, resources_) {
       foreachpair (const SlaveID& slaveId,
@@ -7507,7 +7510,7 @@ TEST_P(HierarchicalAllocator_BENCHMARK_Test, ResourceLabels)
 
   auto offerCallback = [&offers](
       const FrameworkID& frameworkId,
-      const hashmap<string, hashmap<SlaveID, Resources>>& resources_)
+      const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources_)
   {
     foreachkey (const string& role, resources_) {
       foreachpair (const SlaveID& slaveId,
@@ -7687,7 +7690,7 @@ TEST_P(HierarchicalAllocator_BENCHMARK_Test, SuppressOffers)
 
   auto offerCallback = [&offers](
       const FrameworkID& frameworkId,
-      const hashmap<string, hashmap<SlaveID, Resources>>& resources_)
+      const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources_)
   {
     foreachkey (const string& role, resources_) {
       foreachpair (const SlaveID& slaveId,
@@ -7844,7 +7847,7 @@ TEST_P(HierarchicalAllocator_BENCHMARK_Test, ExtremeSuppressOffers)
 
   auto offerCallback = [&offers](
       const FrameworkID& frameworkId,
-      const hashmap<string, hashmap<SlaveID, Resources>>& resources_)
+      const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources_)
   {
     foreachkey (const string& role, resources_) {
       foreachpair (const SlaveID& slaveId,

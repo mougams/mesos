@@ -18,7 +18,7 @@
 #define __MASTER_ALLOCATOR_MESOS_ALLOCATOR_HPP__
 
 #include <mesos/allocator/allocator.hpp>
-
+#include <mesos/allocator/tsl/ordered_map.h>
 #include <process/dispatch.hpp>
 #include <process/future.hpp>
 #include <process/process.hpp>
@@ -50,7 +50,7 @@ public:
       const mesos::allocator::Options& options,
       const lambda::function<
           void(const FrameworkID&,
-               const hashmap<std::string, hashmap<SlaveID, Resources>>&)>&
+               const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>&)>&
                    offerCallback,
       const lambda::function<
           void(const FrameworkID&,
@@ -194,7 +194,7 @@ public:
       const mesos::allocator::Options& options,
       const lambda::function<
           void(const FrameworkID&,
-               const hashmap<std::string, hashmap<SlaveID, Resources>>&)>&
+               const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>&)>&
                    offerCallback,
       const lambda::function<
           void(const FrameworkID&,
@@ -347,7 +347,7 @@ inline void MesosAllocator<AllocatorProcess>::initialize(
     const mesos::allocator::Options& options,
     const lambda::function<
         void(const FrameworkID&,
-             const hashmap<std::string, hashmap<SlaveID, Resources>>&)>&
+             const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>&)>&
                  offerCallback,
     const lambda::function<
         void(const FrameworkID&,

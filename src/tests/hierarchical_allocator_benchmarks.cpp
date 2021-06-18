@@ -21,6 +21,7 @@
 #include <gmock/gmock.h>
 
 #include <mesos/allocator/allocator.hpp>
+#include <mesos/allocator/tsl/ordered_map.h>
 
 #include <process/clock.hpp>
 #include <process/future.hpp>
@@ -172,7 +173,7 @@ protected:
       const BenchmarkConfig& config,
       Option<lambda::function<
           void(const FrameworkID&,
-               const hashmap<string, hashmap<SlaveID, Resources>>&)>>
+               const hashmap<string, tsl::ordered_map<SlaveID, Resources>>&)>>
                  offerCallback = None())
   {
     bool clockPaused = Clock::paused();
@@ -187,7 +188,7 @@ protected:
       offerCallback =
         [this](
             const FrameworkID& frameworkId,
-            const hashmap<string, hashmap<SlaveID, Resources>>& resources_) {
+            const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources_) {
           foreachkey (const string& role, resources_) {
             foreachpair (
                 const SlaveID& slaveId,

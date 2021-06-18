@@ -27,24 +27,24 @@ ResourceSlaveSorterCPUFirst::~ResourceSlaveSorterCPUFirst() {}
 
 bool ResourceSlaveSorterCPUFirst::_compare(SlaveID& l, SlaveID& r)
 {
- CHECK(total_.resources.contains(l));
- CHECK(total_.resources.contains(r));
-  const Resources &lres = total_.resources[l];
-  const Resources &rres = total_.resources[r];
-  if (lres.cpus().get() < rres.cpus().get()){
+ CHECK(freeResources.contains(l));
+ CHECK(freeResources.contains(r));
+  const Resources lres = freeResources[l];
+  const Resources rres = freeResources[r];
+  if (lres.cpus().getOrElse(0) < rres.cpus().getOrElse(0)){
     return true;
   }
-  else if (lres.cpus().get() > rres.cpus().get()) {
+  else if (lres.cpus().getOrElse(0) > rres.cpus().getOrElse(0)) {
     return false;
   }
 
-  if (lres.mem().get() < rres.mem().get()){
+  if (lres.mem().getOrElse(0) < rres.mem().getOrElse(0)){
     return true;
-  }else if (lres.mem().get() > rres.mem().get()) {
+  }else if (lres.mem().getOrElse(0) > rres.mem().getOrElse(0)) {
     return false;
   }
 
-  return  (lres.disk().get() < rres.disk().get());
+  return  (lres.disk().getOrElse(0) < rres.disk().getOrElse(0));
 }
 
 void ResourceSlaveSorterCPUFirst::sort(
@@ -70,7 +70,7 @@ void ResourceSlaveSorterCPUFirst::add(
       });
 
     total_.resources[slaveId] += resources;
-
+    freeResources[slaveId] = resources;
     const Resources scalarQuantities =
       (resources.nonShared() + newShared).createStrippedScalarQuantity();
 
@@ -87,6 +87,7 @@ void ResourceSlaveSorterCPUFirst::remove(
       << total_.resources[slaveId] << " does not contain " << resources;
 
     total_.resources[slaveId] -= resources;
+    freeResources[slaveId] -= allocatedResources[slaveId];
 
     // Remove shared resources from the total quantities when there
     // are no instances of same resources left in the total.
@@ -103,6 +104,8 @@ void ResourceSlaveSorterCPUFirst::remove(
 
     if (total_.resources[slaveId].empty()) {
       total_.resources.erase(slaveId);
+      freeResources.erase(slaveId);
+
     }
   }
 }
@@ -120,6 +123,7 @@ void ResourceSlaveSorterCPUFirst::allocated(
   const Resources quantitiesToAdd =
     (toAdd.nonShared() + sharedToAdd).createStrippedScalarQuantity();
   total_.resources[slaveId] += quantitiesToAdd;
+  freeResources[slaveId] -= quantitiesToAdd;
   allocatedResources[slaveId] += toAdd;
   total_.scalarQuantities += quantitiesToAdd;
 }
@@ -134,7 +138,11 @@ void ResourceSlaveSorterCPUFirst::unallocated(
     << "Resources " << allocatedResources.at(slaveId) << " at agent " << slaveId
     << " does not contain " << toRemove;
 
-  allocatedResources[slaveId] -= toRemove;
+  const Resources quantitiesToRemove =
+    (toRemove.nonShared()).createStrippedScalarQuantity();
+  allocatedResources[slaveId] -= quantitiesToRemove;
+  freeResources[slaveId] += quantitiesToRemove;
+
 
 
   if (allocatedResources[slaveId].empty()) {

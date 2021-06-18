@@ -64,6 +64,7 @@ private:
   bool _compare(SlaveID& l, SlaveID& r);
   // TODO(jabnouneo) : merge in single class + optimize
   hashmap<SlaveID, Resources> allocatedResources;
+  hashmap<SlaveID, Resources> freeResources;
   hashmap<SlaveID, Resources> totalResources;
 
   //

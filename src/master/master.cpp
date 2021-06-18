@@ -10253,7 +10253,7 @@ void Master::frameworkFailoverTimeout(const FrameworkID& frameworkId,
 
 void Master::offer(
     const FrameworkID& frameworkId,
-    const hashmap<string, hashmap<SlaveID, Resources>>& resources)
+    const hashmap<string, tsl::ordered_map<SlaveID, Resources>>& resources)
 {
   Framework* framework = getFramework(frameworkId);
 

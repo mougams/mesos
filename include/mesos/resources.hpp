@@ -31,6 +31,7 @@
 #include <mesos/resource_quantities.hpp>
 #include <mesos/type_utils.hpp>
 #include <mesos/values.hpp>
+#include <mesos/allocator/tsl/ordered_map.h>
 
 #include <stout/bytes.hpp>
 #include <stout/check.hpp>
@@ -388,6 +389,19 @@ public:
   // non-scalar)
   template <typename Key>
   static Resources sum(const hashmap<Key, Resources>& _resources)
+  {
+    Resources result;
+
+    foreachvalue (const Resources& resources, _resources) {
+      result += resources;
+    }
+
+    return result;
+  }
+
+  // This was added to make the ordered_map summable 
+  template <typename Key>
+  static Resources sum(const tsl::ordered_map<Key, Resources>& _resources)
   {
     Resources result;
 

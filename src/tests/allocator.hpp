@@ -398,7 +398,7 @@ public:
       const Options& options,
       const lambda::function<
           void(const FrameworkID&,
-               const hashmap<std::string, hashmap<SlaveID, Resources>>&)>&,
+               const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>&)>&,
       const lambda::function<
           void(const FrameworkID&,
                const hashmap<SlaveID, UnavailableResources>&)>&));

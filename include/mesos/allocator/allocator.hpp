@@ -22,7 +22,7 @@
 
 // ONLY USEFUL AFTER RUNNING PROTOC.
 #include <mesos/allocator/allocator.pb.h>
-
+#include <mesos/allocator/tsl/ordered_map.h>
 #include <mesos/maintenance/maintenance.hpp>
 
 #include <mesos/quota/quota.hpp>
@@ -131,7 +131,7 @@ public:
       const Options& options,
       const lambda::function<
           void(const FrameworkID&,
-               const hashmap<std::string, hashmap<SlaveID, Resources>>&)>&
+               const hashmap<std::string, tsl::ordered_map<SlaveID, Resources>>&)>&
                    offerCallback,
       const lambda::function<
           void(const FrameworkID&,
