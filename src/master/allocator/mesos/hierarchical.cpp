@@ -470,7 +470,16 @@ void HierarchicalAllocatorProcess::initialize(
   completedFrameworkMetrics =
     BoundedHashMap<FrameworkID, process::Owned<FrameworkMetrics>>(
         options.maxCompletedFrameworks);
-
+  
+  if( options.sortRolesOnce ){
+    sortRolesAgain = [this](vector<string> sortedRoles) {
+      return sortedRoles;
+    };
+  }else {
+    sortRolesAgain = [this](vector<string> sortedRoles) {
+      return this->roleSorter->sort();
+    };
+  }
   roleSorter->initialize(options.fairnessExcludeResourceNames);
   slaveSorter->initialize(options.slaveSorterResourceWeights);
 
@@ -2207,12 +2216,13 @@ void HierarchicalAllocatorProcess::__allocate()
 
   // Call the slave sorter again instead of random shuffle 
   slaveSorter->sort(slaveIds.begin(), slaveIds.end());
-
+  // Keep one consistent sort of roles on the allocation cycle 
+  vector<string> sortedRoles = roleSorter->sort();
 
   foreach (const SlaveID& slaveId, slaveIds) {
     Slave& slave = *CHECK_NOTNONE(getSlave(slaveId));
-
-    foreach (const string& role, roleSorter->sort()) {
+    sortedRoles = sortRolesAgain(sortedRoles);
+    foreach (const string& role, sortedRoles) {
       // TODO(bmahler): Handle shared volumes, which are always available but
       // should be excluded here based on `offeredSharedResources`.
       if (slave.getAvailable().empty()) {

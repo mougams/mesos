@@ -756,6 +756,7 @@ protected:
   //TODO(ojabnoune) DOC
   process::Owned<SlaveSorter> slaveSorter;
 
+
 private:
   bool isFrameworkTrackedUnderRole(
       const FrameworkID& frameworkId,
@@ -778,6 +779,7 @@ private:
 
   void suppressRoles(Framework& framework, const std::set<std::string>& roles);
   void reviveRoles(Framework& framework, const std::set<std::string>& roles);
+  std::function<std::vector<std::string>(std::vector<std::string>)> sortRolesAgain;
 
   // Helper to update the agent's total resources maintained in the allocator
   // and the role and quota sorters (whose total resources match the agent's
