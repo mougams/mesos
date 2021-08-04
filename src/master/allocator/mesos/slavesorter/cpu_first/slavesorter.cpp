@@ -27,20 +27,21 @@ ResourceSlaveSorterCPUFirst::~ResourceSlaveSorterCPUFirst() {}
 
 bool ResourceSlaveSorterCPUFirst::_compare(SlaveID& l, SlaveID& r)
 {
- CHECK(freeResources.contains(l));
- CHECK(freeResources.contains(r));
+  CHECK(freeResources.contains(l));
+  CHECK(freeResources.contains(r));
+
   const Resources lres = freeResources[l];
   const Resources rres = freeResources[r];
-  if (lres.cpus().getOrElse(0) < rres.cpus().getOrElse(0)){
+
+  if (lres.cpus().getOrElse(0) < rres.cpus().getOrElse(0)) {
     return true;
-  }
-  else if (lres.cpus().getOrElse(0) > rres.cpus().getOrElse(0)) {
+  } else if (lres.cpus().getOrElse(0) > rres.cpus().getOrElse(0)) {
     return false;
   }
 
-  if (lres.mem().getOrElse(0) < rres.mem().getOrElse(0)){
+  if (lres.mem().getOrElse(0) < rres.mem().getOrElse(0)) {
     return true;
-  }else if (lres.mem().getOrElse(0) > rres.mem().getOrElse(0)) {
+  } else if (lres.mem().getOrElse(0) > rres.mem().getOrElse(0)) {
     return false;
   }
 
@@ -148,6 +149,17 @@ void ResourceSlaveSorterCPUFirst::unallocated(
   if (allocatedResources[slaveId].empty()) {
     allocatedResources.erase(slaveId);
   }
+}
+
+bool ResourceSlaveSorterCPUFirst::isOfferable(
+  const hashmap<std::string, Resources> & minOfferable,
+  const std::string & role,
+  const Resources& resources)
+{
+  Resources minOfferableResources = minOfferable.at(role);
+  double minCpusOfferable = minOfferableResources.cpus().getOrElse(0);
+  double offerCpus = minOfferableResources.cpus().getOrElse(0);
+  return offerCpus > minCpusOfferable;
 }
 
 } // namespace allocator {

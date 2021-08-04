@@ -33,7 +33,6 @@
 #include "mesos/resource_quantities.hpp"
 #include "master/allocator/mesos/slavesorter/slavesorter.hpp"
 
-
 namespace mesos {
 namespace internal {
 namespace master {
@@ -56,11 +55,14 @@ public:
   // Specify that resources have been allocated on the given slave
   virtual void allocated(const SlaveID& slaveId, const Resources& resources);
 
-
   // Specify that resources have been unallocated on the given slave.
   virtual void unallocated(const SlaveID& slaveId, const Resources& resources);
 
-private:
+  bool isOfferable(const hashmap<std::string, Resources> & minOfferable,
+                   const std::string& role,
+                   const Resources& resources);
+
+ private:
   bool _compare(SlaveID& l, SlaveID& r);
   // TODO(jabnouneo) : merge in single class + optimize
   hashmap<SlaveID, Resources> allocatedResources;

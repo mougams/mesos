@@ -72,7 +72,6 @@ struct Options
   Duration recoveryTimeout = Minutes(10);
   float agentRecoveryFactor = 0.80;
 
-  bool sortRolesOnce = false;
 };
 
 

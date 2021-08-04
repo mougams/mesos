@@ -16,7 +16,6 @@
 #ifndef __MASTER_ALLOCATOR_SLAVESORTER_SLAVESORTER_HPP__
 #define __MASTER_ALLOCATOR_SLAVESORTER_SLAVESORTER_HPP__
 #include <vector>
-
 #include <process/pid.hpp>
 
 using mesos::Resource;
@@ -24,8 +23,8 @@ using mesos::Resources;
 using mesos::SlaveID;
 using mesos::SlaveInfo;
 using mesos::ResourceQuantities;
-
 using mesos::Value;
+
 namespace mesos {
 namespace internal {
 namespace master {
@@ -49,7 +48,6 @@ public:
   virtual void initialize(
       const Option<std::string>& slaveSorterResourceWeights){};
 
-
   //   // Returns all of the slaves in the order that they should
   //   // be allocated to, according to this Sorter's policy.
   virtual void sort(
@@ -72,17 +70,22 @@ public:
   // manage whitelisting ? ( needs an updateWhitelist method to update
   // whitelisted slaves from Option<hashset<string>>& _whitelist))
 
-
   // Specify that resources have been allocated on the given slave
   virtual void allocated(
     const SlaveID& slaveId, const Resources& resources) = 0;
 
-
   // Specify that resources have been unallocated on the given slave.
-  virtual void unallocated(
-    const SlaveID& slaveId, const Resources& resources) = 0;
-};
+  virtual void unallocated(const SlaveID& slaveId,
+                           const Resources& resources) = 0;
 
+  bool isOfferable(
+    const hashmap<std::string, Resources> & minOfferable,
+    const std::string& role,
+    const Resources& resources)
+  {
+  return true;
+  }
+};
 
 } // namespace allocator {
 } // namespace master {

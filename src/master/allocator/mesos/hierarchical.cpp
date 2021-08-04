@@ -470,16 +470,7 @@ void HierarchicalAllocatorProcess::initialize(
   completedFrameworkMetrics =
     BoundedHashMap<FrameworkID, process::Owned<FrameworkMetrics>>(
         options.maxCompletedFrameworks);
-  
-  if( options.sortRolesOnce ){
-    sortRolesAgain = [this](vector<string> sortedRoles) {
-      return sortedRoles;
-    };
-  }else {
-    sortRolesAgain = [this](vector<string> sortedRoles) {
-      return this->roleSorter->sort();
-    };
-  }
+
   roleSorter->initialize(options.fairnessExcludeResourceNames);
   slaveSorter->initialize(options.slaveSorterResourceWeights);
 
@@ -2158,7 +2149,8 @@ void HierarchicalAllocatorProcess::__allocate()
 
         // If the framework filters these resources, ignore.
         if (!allocatable(toAllocate, role, framework) ||
-            isFiltered(framework, role, slave, toAllocate)) {
+            isFiltered(framework, role, slave, toAllocate) ||
+            !slaveSorter->isOfferable(framework.minOfferableResources, role, toAllocate)) {
           VLOG(2) << "[CRITEO] " + role + " filters these resources OR offer would be smaller than minAllocatableParameter" << slaveId;
           continue;
         }
@@ -2216,13 +2208,10 @@ void HierarchicalAllocatorProcess::__allocate()
 
   // Call the slave sorter again instead of random shuffle 
   slaveSorter->sort(slaveIds.begin(), slaveIds.end());
-  // Keep one consistent sort of roles on the allocation cycle 
-  vector<string> sortedRoles = roleSorter->sort();
 
   foreach (const SlaveID& slaveId, slaveIds) {
     Slave& slave = *CHECK_NOTNONE(getSlave(slaveId));
-    sortedRoles = sortRolesAgain(sortedRoles);
-    foreach (const string& role, sortedRoles) {
+    foreach (const string& role, roleSorter->sort()) {
       // TODO(bmahler): Handle shared volumes, which are always available but
       // should be excluded here based on `offeredSharedResources`.
       if (slave.getAvailable().empty()) {
@@ -2309,7 +2298,8 @@ void HierarchicalAllocatorProcess::__allocate()
 
         // If the framework filters these resources, ignore.
         if (!allocatable(toAllocate, role, framework) ||
-            isFiltered(framework, role, slave, toAllocate)) {
+            isFiltered(framework, role, slave, toAllocate) || 
+            !slaveSorter->isOfferable(framework.minOfferableResources, role, toAllocate)) {
           continue;
         }
 

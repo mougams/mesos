@@ -1151,15 +1151,22 @@ TEST_F(HierarchicalAllocatorTest, CoarseGrained)
   FrameworkInfo framework1 = createFrameworkInfo({"role1"});
   allocator->addFramework(framework1.id(), framework1, {}, true, {});
 
-  Allocation expected = Allocation(
+  Allocation expected1 = Allocation(
       framework1.id(),
       {{"role1", {
           {slave1.id(), slave1.resources()},
           {slave2.id(), slave2.resources()}}
       }});
+  Allocation expected2 = Allocation(
+      framework1.id(),
+      {{"role1", {
+          {slave2.id(), slave2.resources()},
+          {slave1.id(), slave1.resources()}}
+      }});
 
   Future<Allocation> allocation = allocations.get();
-  AWAIT_EXPECT_EQ(expected, allocation);
+  Allocation allocated = allocation.get();
+  EXPECT_TRUE(allocated == expected1 || allocated == expected2);
 
   allocator->recoverResources(
       framework1.id(),
@@ -1715,10 +1722,10 @@ TEST_F(HierarchicalAllocatorTest, QuotaAccountingReserveAllocatedResources)
     Allocation(framework.id(), {{QUOTA_ROLE, {{agent1.id(), agentResources}}}});
 
   Future<Allocation> allocation = allocations.get();
+  Allocation allocated = allocation.get();
+
   AWAIT_EXPECT_EQ(expected, allocation);
-
   // `framework` unsatisfied quota: cpus:5;mem:512
-
   // Let `framework` reserve its allocated resources on agent1.
   Resources reserveResources = agentResources;
   reserveResources.allocate(QUOTA_ROLE);
@@ -1872,26 +1879,34 @@ TEST_F(HierarchicalAllocatorTest, Reservations)
   FrameworkInfo framework1 = createFrameworkInfo({"role1"});
   allocator->addFramework(framework1.id(), framework1, {}, true, {});
 
-  Allocation expected = Allocation(
+  Allocation expected1 = Allocation(
       framework1.id(),
       {{"role1", {
         {slave1.id(), slave1.resources()},
         {slave2.id(), Resources(slave2.resources()).unreserved()}
       }}});
 
-  AWAIT_EXPECT_EQ(expected, allocations.get());
+  Allocation expected2 = Allocation(
+      framework1.id(),
+      {{"role1", {
+        {slave2.id(), Resources(slave2.resources()).unreserved()},
+        {slave1.id(), slave1.resources()}
+      }}});
+
+  Future<Allocation> allocation = allocations.get();
+  EXPECT_TRUE(expected1 == allocation.get() || expected2 == allocation.get());
 
   // framework2 should get all of its reserved resources on slave2.
   FrameworkInfo framework2 = createFrameworkInfo({"role2"});
   allocator->addFramework(framework2.id(), framework2, {}, true, {});
 
-  expected = Allocation(
+  expected1 = Allocation(
       framework2.id(),
       {{"role2", {
         {slave2.id(), Resources(slave2.resources()).reserved("role2")}
       }}});
 
-  AWAIT_EXPECT_EQ(expected, allocations.get());
+  AWAIT_EXPECT_EQ(expected1, allocations.get());
 }
 
 
