@@ -674,6 +674,7 @@ void HierarchicalAllocatorProcess::activateFramework(
 
     if (!framework.suppressedRoles.count(role)) {
       frameworkSorter->activate(frameworkId.value());
+      framework.minOfferableResources[role];
     }
   }
 
@@ -1070,6 +1071,19 @@ void HierarchicalAllocatorProcess::requestResources(
   CHECK(initialized);
 
   LOG(INFO) << "Received resource request from framework " << frameworkId;
+  Resources requestedResources = requests[0].resources();
+  auto frameworkIterator = frameworks.find(frameworkId);
+  CHECK(frameworkIterator != frameworks.end());
+
+  Framework& framework = frameworkIterator->second;
+  for(string role : framework.roles) {
+  LOG(INFO) << "Setting minimal resources for role "
+              << role
+              << " to "
+              <<  requestedResources;
+  framework.minOfferableResources[role] = requestedResources;
+  }
+
 }
 
 

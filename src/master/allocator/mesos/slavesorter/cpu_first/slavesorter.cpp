@@ -158,8 +158,8 @@ bool ResourceSlaveSorterCPUFirst::isOfferable(
 {
   Resources minOfferableResources = minOfferable.at(role);
   double minCpusOfferable = minOfferableResources.cpus().getOrElse(0);
-  double offerCpus = minOfferableResources.cpus().getOrElse(0);
-  return offerCpus > minCpusOfferable;
+  double offerCpus = resources.cpus().getOrElse(0);
+  return offerCpus >= minCpusOfferable;
 }
 
 } // namespace allocator {

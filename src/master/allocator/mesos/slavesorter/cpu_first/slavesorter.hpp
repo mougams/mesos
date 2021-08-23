@@ -58,7 +58,7 @@ public:
   // Specify that resources have been unallocated on the given slave.
   virtual void unallocated(const SlaveID& slaveId, const Resources& resources);
 
-  bool isOfferable(const hashmap<std::string, Resources> & minOfferable,
+  virtual bool isOfferable(const hashmap<std::string, Resources> & minOfferable,
                    const std::string& role,
                    const Resources& resources);
 
