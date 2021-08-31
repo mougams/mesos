@@ -156,6 +156,9 @@ bool ResourceSlaveSorterCPUFirst::isOfferable(
   const std::string & role,
   const Resources& resources)
 {
+  if (!minOfferable.contains(role)) {
+    return true;
+  }
   Resources minOfferableResources = minOfferable.at(role);
   double minCpusOfferable = minOfferableResources.cpus().getOrElse(0);
   double offerCpus = resources.cpus().getOrElse(0);
