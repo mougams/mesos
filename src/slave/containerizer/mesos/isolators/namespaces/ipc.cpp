@@ -123,6 +123,13 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
     }
   }
 
+  string user;
+  if (containerConfig.has_user()) {
+    user = containerConfig.user();
+  } else {
+    user = "0";
+  }
+
   // Get the container's IPC mode and size of /dev/shm.
   if (containerConfig.has_container_info() &&
       containerConfig.container_info().has_linux_info()) {
@@ -172,7 +179,7 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
             "tmpfs",
             path::join(containerConfig.rootfs(), "/dev/shm"),
             "tmpfs",
-            "mode=1777",
+            strings::format("mode=0700,uid=%s", user).get(),
             MS_NOSUID | MS_NODEV | MS_STRICTATIME);
       }
     } else {
@@ -199,8 +206,8 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
               "tmpfs",
               MS_NOSUID | MS_NODEV | MS_STRICTATIME,
               shmSize.isSome() ?
-                strings::format("mode=1777,size=%d", shmSize->bytes()).get() :
-                "mode=1777");
+                strings::format("mode=0700,size=%d,uid=%s", shmSize->bytes(), user).get() :
+                strings::format("mode=0700,uid=%s", user).get());
 
           if (mnt.isError()) {
             return Failure("Failed to mount '" + shmPath + "': " + mnt.error());
@@ -267,7 +274,7 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
             "tmpfs",
             path::join(containerConfig.rootfs(), "/dev/shm"),
             "tmpfs",
-            "mode=1777",
+            strings::format("mode=0700,uid=%s", user).get(),
             MS_NOSUID | MS_NODEV | MS_STRICTATIME);
       }
     } else {
@@ -295,8 +302,8 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
               "tmpfs",
               MS_NOSUID | MS_NODEV | MS_STRICTATIME,
               shmSize.isSome() ?
-                strings::format("mode=1777,size=%d", shmSize->bytes()).get() :
-                "mode=1777");
+                strings::format("mode=0700,size=%d,uid=%s", shmSize->bytes(), user).get() :
+                strings::format("mode=0700,uid=%s", user).get());
 
           if (mnt.isError()) {
             return Failure("Failed to mount '" + shmPath + "': " + mnt.error());
