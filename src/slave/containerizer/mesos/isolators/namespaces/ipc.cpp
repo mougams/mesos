@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <pwd.h>
+
 #include <string>
 
 #include <process/future.hpp>
@@ -47,6 +49,23 @@ using mesos::slave::Isolator;
 namespace mesos {
 namespace internal {
 namespace slave {
+
+// Small C helper which looks up the login of a user in passwd
+// and returns its UID. Handy to provide right perms on mountpoints
+// We should use the reentrant version as it's unsure this can be called
+// several times (many containers can start at once).
+string uidfromlogin(string login)
+{
+    struct passwd pwd;
+    struct passwd* result = NULL;
+    char buf[2048];
+
+    memset(&buf, 0, sizeof buf);
+    if(!getpwnam_r(login.c_str(), &pwd, buf, sizeof buf, &result))
+        return std::to_string(pwd.pw_uid);
+
+    return "0";
+}
 
 Try<Isolator*> NamespacesIPCIsolatorProcess::create(const Flags& flags)
 {
@@ -123,6 +142,12 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
     }
   }
 
+  string user = "0";
+  if (containerConfig.has_user())
+    user = uidfromlogin(containerConfig.user());
+
+  string mountopts = strings::format("mode=0700,uid=%s", user).get();
+
   // Get the container's IPC mode and size of /dev/shm.
   if (containerConfig.has_container_info() &&
       containerConfig.container_info().has_linux_info()) {
@@ -172,7 +197,7 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
             "tmpfs",
             path::join(containerConfig.rootfs(), "/dev/shm"),
             "tmpfs",
-            "mode=1777",
+            mountopts,
             MS_NOSUID | MS_NODEV | MS_STRICTATIME);
       }
     } else {
@@ -199,8 +224,8 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
               "tmpfs",
               MS_NOSUID | MS_NODEV | MS_STRICTATIME,
               shmSize.isSome() ?
-                strings::format("mode=1777,size=%d", shmSize->bytes()).get() :
-                "mode=1777");
+                strings::format("%s,size=%d", mountopts, shmSize->bytes()).get() :
+                mountopts);
 
           if (mnt.isError()) {
             return Failure("Failed to mount '" + shmPath + "': " + mnt.error());
@@ -267,7 +292,7 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
             "tmpfs",
             path::join(containerConfig.rootfs(), "/dev/shm"),
             "tmpfs",
-            "mode=1777",
+            mountopts,
             MS_NOSUID | MS_NODEV | MS_STRICTATIME);
       }
     } else {
@@ -295,8 +320,8 @@ Future<Option<ContainerLaunchInfo>> NamespacesIPCIsolatorProcess::prepare(
               "tmpfs",
               MS_NOSUID | MS_NODEV | MS_STRICTATIME,
               shmSize.isSome() ?
-                strings::format("mode=1777,size=%d", shmSize->bytes()).get() :
-                "mode=1777");
+                strings::format("%s,size=%d", mountopts, shmSize->bytes()).get() :
+                mountopts);
 
           if (mnt.isError()) {
             return Failure("Failed to mount '" + shmPath + "': " + mnt.error());
