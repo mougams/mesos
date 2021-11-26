@@ -101,7 +101,8 @@ inline void initialize()
 // and queries its "content-length" field. (Note that according to the
 // HTTP specification there is no guarantee that this field contains
 // any useful value.)
-inline Try<Bytes> contentLength(const std::string& url)
+inline Try<Bytes> contentLength(const std::string& url,
+        const std::string& useragent = "stout/1.0")
 {
   initialize();
 
@@ -112,6 +113,7 @@ inline Try<Bytes> contentLength(const std::string& url)
   }
 
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent.c_str());
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, true);
   curl_easy_setopt(curl, CURLOPT_HEADER, 1);
   curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
@@ -148,7 +150,8 @@ inline Try<Bytes> contentLength(const std::string& url)
 inline Try<int> download(
     const std::string& url,
     const std::string& path,
-    const Option<Duration>& stall_timeout = None())
+    const Option<Duration>& stall_timeout = None(),
+    const std::string& useragent = "stout/1.0")
 {
   initialize();
 
@@ -170,6 +173,7 @@ inline Try<int> download(
   }
 
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, nullptr);
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, true);
 

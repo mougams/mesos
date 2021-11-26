@@ -49,6 +49,8 @@
 
 #include "slave/containerizer/fetcher_process.hpp"
 
+#include "version/version.hpp"
+
 using std::list;
 using std::map;
 using std::shared_ptr;
@@ -326,7 +328,8 @@ static Try<Bytes> fetchSize(
   }
 
   if (Fetcher::isNetUri(uri)) {
-    Try<Bytes> size = net::contentLength(uri);
+    string useragent = "mesos/" + std::string(MESOS_VERSION);
+    Try<Bytes> size = net::contentLength(uri, useragent);
     if (size.isError()) {
       return Error(size.error());
     }

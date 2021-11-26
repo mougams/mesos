@@ -47,6 +47,8 @@
 
 #include "slave/containerizer/fetcher.hpp"
 
+#include "version/version.hpp"
+
 using namespace process;
 
 using namespace mesos;
@@ -175,7 +177,8 @@ static Try<string> downloadWithNet(
   LOG(INFO) << "Downloading resource from '" << sourceUri
             << "' to '" << destinationPath << "'";
 
-  Try<int> code = net::download(sourceUri, destinationPath, stallTimeout);
+  string useragent = "mesos/" + std::string(MESOS_VERSION);
+  Try<int> code = net::download(sourceUri, destinationPath, stallTimeout, useragent);
   if (code.isError()) {
     return Error("Error downloading resource: " + code.error());
   } else {
