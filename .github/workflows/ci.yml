@@ -1,7 +1,11 @@
 ---
 name: Docker Image CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - criteo/1.9.0
+  pull_request:
 
 jobs:
   build:
