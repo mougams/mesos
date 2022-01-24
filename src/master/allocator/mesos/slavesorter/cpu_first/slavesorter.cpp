@@ -162,7 +162,28 @@ bool ResourceSlaveSorterCPUFirst::isOfferable(
   Resources minOfferableResources = minOfferable.at(role);
   double minCpusOfferable = minOfferableResources.cpus().getOrElse(0);
   double offerCpus = resources.cpus().getOrElse(0);
-  return offerCpus >= minCpusOfferable;
+  if (offerCpus < minCpusOfferable)
+    return false;
+
+  Bytes minMemOfferable = minOfferableResources.mem().getOrElse(0);
+  Bytes offerMem = resources.mem().getOrElse(0);
+  if (offerMem < minMemOfferable)
+    return false;
+
+  Bytes minDiskOfferable = minOfferableResources.disk().getOrElse(0);
+  Bytes offerDisk = resources.disk().getOrElse(0);
+  if (offerDisk < minDiskOfferable)
+    return false;
+
+  double minGpusOfferable = minOfferableResources.gpus().getOrElse(0);
+  double offerGpus = resources.gpus().getOrElse(0);
+  if (offerGpus < minGpusOfferable)
+    return false;
+
+  // FIXME: we don't deal with network bandwidth, but we don't know if we'll
+  // keep this resource for ever
+
+  return true;
 }
 
 } // namespace allocator {
