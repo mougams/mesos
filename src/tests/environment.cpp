@@ -780,7 +780,7 @@ public:
 
   bool disable(const ::testing::TestInfo* test) const override
   {
-    return fsSupportError.isSome() && matches(test, "AUFS_");
+    return true;
   }
 };
 
