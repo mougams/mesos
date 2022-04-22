@@ -843,7 +843,7 @@ void receive(Socket socket)
     if (f.isFailed()) {
       Try<Address> peer = socket.peer();
 
-      LOG(WARNING)
+      DLOG(WARNING)
         << "Failed to recv on socket " << socket.get() << " to peer '"
         << (peer.isSome() ? stringify(peer.get()) : "unknown")
         << "': " << f.failure();
@@ -1428,7 +1428,7 @@ void ignore_recv_data(
     if (length.isFailed()) {
       Try<Address> peer = socket.peer();
 
-      LOG(WARNING)
+      DLOG(WARNING)
         << "Failed to recv on socket " << socket.get() << " to peer '"
         << (peer.isSome() ? stringify(peer.get()) : "unknown")
         << "': " << length.failure();
