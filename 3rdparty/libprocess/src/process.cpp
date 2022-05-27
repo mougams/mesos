@@ -840,15 +840,6 @@ void receive(Socket socket)
       });
 
   recv_loop.onAny([=](const Future<Nothing> f) {
-    if (f.isFailed()) {
-      Try<Address> peer = socket.peer();
-
-      DLOG(WARNING)
-        << "Failed to recv on socket " << socket.get() << " to peer '"
-        << (peer.isSome() ? stringify(peer.get()) : "unknown")
-        << "': " << f.failure();
-    }
-
     socket_manager->close(socket);
     delete[] data;
     delete decoder;
@@ -1425,15 +1416,6 @@ void ignore_recv_data(
     size_t size)
 {
   if (!length.isReady() || length.get() == 0) {
-    if (length.isFailed()) {
-      Try<Address> peer = socket.peer();
-
-      DLOG(WARNING)
-        << "Failed to recv on socket " << socket.get() << " to peer '"
-        << (peer.isSome() ? stringify(peer.get()) : "unknown")
-        << "': " << length.failure();
-    }
-
     socket_manager->close(socket);
     delete[] data;
     return;
