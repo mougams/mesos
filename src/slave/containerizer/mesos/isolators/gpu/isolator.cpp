@@ -395,7 +395,19 @@ Future<Option<ContainerLaunchInfo>> NvidiaGpuIsolatorProcess::_prepare(
 
   ImageManifest manifest = containerConfig.docker().manifest();
 
-  if (volume.shouldInject(manifest)) {
+  bool driver_requested = false;
+
+  if (launchInfo.has_task_environment()){
+    foreach (const Environment::Variable& variable,
+      launchInfo.task_environment().variables()){
+        if (variable.name() == "NVIDIA_VISIBLE_DEVICES"){
+          if (!variable.value().empty() && variable.value() != "void")
+            driver_requested = true;
+        }
+    }
+  }
+
+  if (volume.shouldInject(manifest) || driver_requested) {
     const string target = path::join(
         containerConfig.rootfs(),
         volume.CONTAINER_PATH());
