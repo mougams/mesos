@@ -394,20 +394,20 @@ Future<Option<ContainerLaunchInfo>> NvidiaGpuIsolatorProcess::_prepare(
   }
 
   ImageManifest manifest = containerConfig.docker().manifest();
-
+  const Environment& container_env = containerConfig.command_info().environment();
   bool driver_requested = false;
 
-  if (launchInfo.has_task_environment()){
-    foreach (const Environment::Variable& variable,
-      launchInfo.task_environment().variables()){
-        if (variable.name() == "NVIDIA_VISIBLE_DEVICES"){
+  foreach (const Environment::Variable& variable, container_env.variables()){
+      if (variable.name() == "NVIDIA_VISIBLE_DEVICES"){
           if (!variable.value().empty() && variable.value() != "void")
-            driver_requested = true;
-        }
-    }
+          {
+              LOG(INFO) << "NVIDIA_VISIBLE_DEVICES was set in task env and we will then mount the volume";
+              driver_requested = true;
+          }
+      }
   }
 
-  if (volume.shouldInject(manifest) || driver_requested) {
+  if ((volume.shouldInject(manifest) || driver_requested) && containerConfig.has_rootfs()) {
     const string target = path::join(
         containerConfig.rootfs(),
         volume.CONTAINER_PATH());
@@ -422,6 +422,7 @@ Future<Option<ContainerLaunchInfo>> NvidiaGpuIsolatorProcess::_prepare(
     *launchInfo.add_mounts() = protobuf::slave::createContainerMount(
         volume.HOST_PATH(), target, MS_RDONLY | MS_BIND | MS_REC);
 
+    LOG(INFO) << "We mount '" << volume.HOST_PATH() << "' onto '" << target << "'";
     // TODO(chhsiao): As a workaround, we append `NvidiaVolume` paths into the
     // `PATH` and `LD_LIBRARY_PATH` environment variables so the binaries and
     // libraries can be found. However these variables might be overridden by

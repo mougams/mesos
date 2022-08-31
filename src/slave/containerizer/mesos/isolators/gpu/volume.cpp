@@ -221,6 +221,15 @@ Environment NvidiaVolume::ENV(const ImageManifest& manifest) const
     }
   }
 
+  const char* path_env = std::getenv("PATH");
+
+  if (path_env && !paths.size())  {
+      /* FIXME(t.lange): we should merge existing vars */
+      const vector<string> existing_path = strings::tokenize(path_env, ":");
+      paths.insert(paths.end(), existing_path.begin(), existing_path.end());
+      LOG(INFO) << "Defaulting to existing $PATH: " << path_env;
+  }
+
   // Inject the `PATH` and `LD_LIBRARY_PATH` environment variables.
   const string binaryPath = path::join(containerPath, "bin");
   if (std::find(paths.begin(), paths.end(), binaryPath) == paths.end()) {
