@@ -1,9 +1,12 @@
 #!/bin/sh
 
+FLAGS="-Wno-deprecated-declarations -Wno-error=parentheses"
+
 autoreconf --install -Wall --verbose
+
 ./configure \
-    CFLAGS="-Wno-deprecated-declarations" \
-    CXXFLAGS="-Wno-deprecated-declarations" \
+    CFLAGS="$FLAGS" \
+    CXXFLAGS="$FLAGS" \
     --disable-silent-rules \
     --prefix=/usr \
     --bindir=/usr/bin \

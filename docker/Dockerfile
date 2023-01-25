@@ -1,8 +1,8 @@
 # First stage: Builder (version independent)
-FROM centos:7.6.1810 AS builder
+FROM rockylinux:8.7.20221219 AS builder
 
-RUN yum -y install epel-release
-RUN yum -y install \
+RUN dnf -y install epel-release
+RUN dnf -y install \
   apr-devel \
   automake \
   cmake3 \
