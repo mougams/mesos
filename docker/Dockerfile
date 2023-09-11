@@ -5,6 +5,7 @@ RUN dnf -y install epel-release
 RUN dnf -y install \
   apr-devel \
   automake \
+  bzip2 \
   cmake3 \
   curl-devel \
   cyrus-sasl-devel \
@@ -25,6 +26,7 @@ RUN dnf -y install \
   subversion-devel \
   vim \
   xfsprogs-devel \
+  xz \
   zlib-devel
 
 RUN alternatives \
