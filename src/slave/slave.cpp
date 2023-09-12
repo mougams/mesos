@@ -3656,29 +3656,42 @@ void Slave::launchExecutor(
       framework->info.checkpoint());
 
 
-  if(environment.find("CRITEO_CNI") != environment.end() && environment["CRITEO_CNI"] == "enabled"){
-    // Slave has CNI enabled but doesn't define any networks, the criteo subnet must be injected.
-    ContainerInfo* containerInfo = containerConfig.mutable_container_info();
-    containerInfo->set_type(ContainerInfo_Type::ContainerInfo_Type_MESOS);
+  // Overrides networks configured for the tasks with those configured at the agent level
+  vector<string> cniNetworks;
+  if (environment.find("CRITEO_NETWORKS") != environment.end()) {
+      cniNetworks = strings::split(environment["CRITEO_NETWORKS"], ",");
+  } else if (environment.find("CRITEO_CNI") != environment.end() && environment["CRITEO_CNI"] == "enabled") {
+      cniNetworks.push_back("criteo");
+  }
+  if (!cniNetworks.empty()) {
+      LOG(INFO) << "Injecting networks " << strings::join(", ", cniNetworks)
+          << " into container " << executor->containerId
+          << " for executor " << executor->id
+          << " of framework " << framework->id();
+      ContainerInfo* containerInfo = containerConfig.mutable_container_info();
+      containerInfo->set_type(ContainerInfo_Type::ContainerInfo_Type_MESOS);
 
-    if (containerInfo->network_infos_size() == 0) {
-      NetworkInfo* criteoNet = containerInfo->add_network_infos();
-      criteoNet->set_name("criteo");
+      // Only overrides network infos if nothing has been set
+      if (containerInfo->network_infos_size() == 0) {
+          for (const string& cniNetwork : cniNetworks) {
+              NetworkInfo* criteoNet = containerInfo->add_network_infos();
+              criteoNet->set_name(cniNetwork);
 
-      if(containerConfig.mutable_executor_info()->has_discovery()){
-        // We need to take the defined ports and map them in the public subnet
-        Ports ports = *containerConfig.mutable_executor_info()
-                  ->mutable_discovery()
-                  ->mutable_ports();
+              if (cniNetwork == "criteo" && containerConfig.mutable_executor_info()->has_discovery()) {
+                  // We need to take the defined ports and map them in the public subnet
+                  Ports ports = *containerConfig.mutable_executor_info()
+                      ->mutable_discovery()
+                      ->mutable_ports();
 
-        for (const auto port : *ports.mutable_ports()) {
-          auto p = criteoNet->add_port_mappings();
-          p->set_host_port(port.number());
-          p->set_container_port(port.number());
-          p->set_protocol(port.protocol());
-        }
+                  for (const auto port : *ports.mutable_ports()) {
+                      auto p = criteoNet->add_port_mappings();
+                      p->set_host_port(port.number());
+                      p->set_container_port(port.number());
+                      p->set_protocol(port.protocol());
+                  }
+              }
+          }
       }
-    }
   }
 
 
