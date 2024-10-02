@@ -1399,6 +1399,7 @@ Future<Nothing> NetworkCniIsolatorProcess::_attach(
   }
 
   // Parse the output of CNI plugin.
+  LOG(INFO) << "BMO CNI OUTPUT " << output.get();
   Try<spec::NetworkInfo> parse = spec::parseNetworkInfo(output.get());
   if (parse.isError()) {
     return Failure(
