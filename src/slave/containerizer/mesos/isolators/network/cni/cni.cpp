@@ -1362,6 +1362,9 @@ Future<Nothing> NetworkCniIsolatorProcess::_attach(
 
   const Future<Option<int>>& status = std::get<0>(t);
   if (!status.isReady()) {
+    LOG(INFO) << "BMO CNI FAILURE 1 " << "Failed to get the exit status of the CNI plugin '"
+        << plugin << "' subprocess: "
+        << (status.isFailed() ? status.failure() : "discarded");
     return Failure(
         "Failed to get the exit status of the CNI plugin '" +
         plugin + "' subprocess: " +
@@ -1369,6 +1372,7 @@ Future<Nothing> NetworkCniIsolatorProcess::_attach(
   }
 
   if (status->isNone()) {
+    LOG(INFO) << "BMO CNI FAILURE 2 " << "Failed to reap the CNI plugin '" << plugin << "' subprocess";
     return Failure(
         "Failed to reap the CNI plugin '" + plugin + "' subprocess");
   }
@@ -1377,6 +1381,9 @@ Future<Nothing> NetworkCniIsolatorProcess::_attach(
   // case of failure) to stdout.
   const Future<string>& output = std::get<1>(t);
   if (!output.isReady()) {
+    LOG(INFO) << "BMO CNI FAILURE 3 " << "Failed to read stdout from the CNI plugin '"
+        << plugin << "' subprocess: "
+        << (output.isFailed() ? output.failure() : "discarded");
     return Failure(
         "Failed to read stdout from the CNI plugin '" +
         plugin + "' subprocess: " +
@@ -1386,12 +1393,18 @@ Future<Nothing> NetworkCniIsolatorProcess::_attach(
   if (status.get() != 0) {
     const Future<string>& error = std::get<2>(t);
     if (!error.isReady()) {
+      LOG(INFO) << "BMO CNI FAILURE 4 " << "Failed to read stderr from the CNI plugin '"
+          << plugin << "' subprocess: "
+          << (error.isFailed() ? error.failure() : "discarded");
       return Failure(
           "Failed to read stderr from the CNI plugin '" +
           plugin + "' subprocess: " +
           (error.isFailed() ? error.failure() : "discarded"));
     }
 
+    LOG(INFO) << "BMO CNI FAILURE 5 " << "The CNI plugin '" << plugin << "' failed to attach container "
+        << stringify(containerId) << " to CNI network '" << networkName
+        << "': stdout='" << output.get() << "', stderr='" << error.get() << "'";
     return Failure(
         "The CNI plugin '" + plugin + "' failed to attach container " +
         stringify(containerId) + " to CNI network '" + networkName +
@@ -1399,6 +1412,7 @@ Future<Nothing> NetworkCniIsolatorProcess::_attach(
   }
 
   // Parse the output of CNI plugin.
+  LOG(INFO) << "BMO CNI OUTPUT 6 " << output.get();
   Try<spec::NetworkInfo> parse = spec::parseNetworkInfo(output.get());
   if (parse.isError()) {
     return Failure(
@@ -1853,9 +1867,13 @@ Future<Nothing> NetworkCniIsolatorProcess::detach(
         " to network '" + networkName + "'");
   }
 
+  LOG(INFO) << "BMO BEFORE INVOKING CNI PLUGIN " << containerId;
   LOG(INFO) << "Invoking CNI plugin '" << plugin.get()
             << "' to detach container " << containerId
             << " from network '" << networkName << "'";
+
+  LOG(INFO) << "BMO BEFORE INVOKING 2 CNI PLUGIN " << "Using network configuration at '" << networkConfigPath
+          << "' for container " << containerId;
 
   VLOG(1) << "Using network configuration at '" << networkConfigPath
           << "' for container " << containerId;
@@ -1870,6 +1888,8 @@ Future<Nothing> NetworkCniIsolatorProcess::detach(
       environment);
 
   if (s.isError()) {
+    LOG(INFO) << "BMO BEFORE INVOKING 3 ERROR CNI PLUGIN " << "Failed to execute the CNI plugin '" << plugin.get()
+        << "': " << s.error();
     return Failure(
         "Failed to execute the CNI plugin '" + plugin.get() +
         "': " + s.error());
